@@ -1,30 +1,31 @@
 package scala.js
 
-import virtualization.lms.common.Base
+import virtualization.lms.common.{NumericOps, Base}
 
 class TestReact {
 
-  /*trait Prog { this: Base with FutureOps with React with JSDom =>
+  trait Prog { this: Base with FutureOps with React with JSDom with NumericOps =>
 
-    def events[A](event: Rep[EventDef[A]], e: Rep[Element]): Events[A] = EventSource[A] {
-      e.on(event) { emit(_) }
+    def events[A : Manifest](event: EventDef[A], e: Rep[EventTarget] = window): Rep[Events[A]] = EventSource[A] { self =>
+      e.on(event) { self.emit(_) }
     }
 
     val move = Reactor.loop { self =>
       for {
-        down <- self await events(MouseDown, window)
-        _ <- self.loopUntil(events(MouseUp, window)) {
-          def move(origX: Rep[Double], origY: Rep[Double], prev: Rep[MouseEvent]): Rep[Unit] =
-            for (e <- self awaitNext events(MouseMove, window)) {
-              val x = Math.round(orig.x + (e.offsetX - prev.x) * 100.0 / scale)
-              val y = Math.round(orig.y + (e.offsetY - prev.y) * 100.0 / scale)
-              updateTransform(s, x, y)
-              move(x, y, e)
+        down <- self await events(MouseDown)
+        _ <- self.loopUntil(events(MouseUp)) {
+          def move(prevX: Rep[Double], prevY: Rep[Double]): Rep[Unit] =
+            for (e <- self awaitNext events(MouseMove)) {
+              val x = prevX + e.offsetX
+              val y = prevY + e.offsetY
+              // TODO Here update the user interface
+              move(x, y)
             }
-          move(tx, ty, down)
+          move(down.offsetY, down.offsetY)
         }
-      } yield ()
+      } ()
     }
 
-  }*/
+  }
+
 }
