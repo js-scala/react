@@ -1,0 +1,42 @@
+var Promise = function (value) {
+  if (value !== undefined) {
+    this.value = value;
+  }
+  this.callbacks = [];
+};
+Promise.prototype.complete = function (value) {
+  if (this.value !== undefined) {
+    throw "This promise has already been completed";
+  } else {
+    this.value = value;
+    for (var i = 0, n = this.callbacks.length ; i < n ; i++) {
+      var callback = this.callbacks[i];
+      callback(value);
+    }
+  }
+};
+Promise.prototype.onComplete = function (callback) {
+  if (this.value === undefined) {
+    this.callbacks.push(callback);
+  } else {
+    callback(this.value);
+  }
+};
+
+function main(x0) {
+var x1 = new Promise();
+$.get(x0, function (d, t, xhr) { x1.complete(xhr.responseText) });
+var x7 = new Promise();
+x1.onComplete(function (x2) {
+var x3 = new Promise();
+$.get(x2, function (d, t, xhr) { x3.complete(xhr.responseText) });
+var x5 = new Promise();
+x3.onComplete(function (x4) {
+x5.complete(x4);
+});
+x5.onComplete(function (v) {
+x7.complete(v);
+});
+});
+return x7
+}

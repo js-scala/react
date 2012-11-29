@@ -6,7 +6,7 @@ class TestReact {
 
   trait Prog { this: Base with FutureOps with React with JSDom with NumericOps =>
 
-    def events[A : Manifest](event: EventDef[A], e: Rep[EventTarget] = window): Rep[Events[A]] = EventSource[A] { self =>
+    def events[A : Manifest](event: EventName[A], e: Rep[EventTarget] = window): Rep[Events[A]] = EventSource[A] { self =>
       e.on(event) { self.emit(_) }
     }
 

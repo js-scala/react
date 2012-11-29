@@ -1,0 +1,44 @@
+var Promise = function (value) {
+  if (value !== undefined) {
+    this.value = value;
+  }
+  this.callbacks = [];
+};
+Promise.prototype.complete = function (value) {
+  if (this.value !== undefined) {
+    throw "This promise has already been completed";
+  } else {
+    this.value = value;
+    for (var i = 0, n = this.callbacks.length ; i < n ; i++) {
+      var callback = this.callbacks[i];
+      callback(value);
+    }
+  }
+};
+Promise.prototype.onComplete = function (callback) {
+  if (this.value === undefined) {
+    this.callbacks.push(callback);
+  } else {
+    callback(this.value);
+  }
+};
+
+function main() {
+var x0 = new Promise();
+setTimeout(function () { x0.complete(null); }, 1000)
+var x16 = x0.onComplete(function (x1) {
+var x2 = console.log("Hello");
+var x3 = new Promise(x2);
+var x14 = x3.onComplete(function (x4) {
+var x5 = new Promise();
+setTimeout(function () { x5.complete(null); }, 2000)
+var x12 = x5.onComplete(function (x6) {
+var x7 = console.log(", World!");
+var x8 = new Promise(x7);
+var x10 = x8.onComplete(function (x9) {
+});
+});
+});
+});
+return x16
+}

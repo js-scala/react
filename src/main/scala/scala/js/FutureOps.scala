@@ -6,17 +6,17 @@ import java.io.PrintWriter
 
 trait FutureOps { this: Base =>
 
-  implicit class FutureOpsCls[A : Manifest](a: Rep[Future[A]]) {
-    def map[B : Manifest](f: Rep[A] => Rep[B]) = future_map(a, f)
-    def flatMap[B : Manifest](f: Rep[A] => Rep[Future[B]]) = future_flatMap(a, f)
-    def foreach(f: Rep[A] => Rep[Unit]) = future_foreach(a, f)
-    def withFilter(f: Rep[A] => Rep[Boolean]) = future_filter(a, f)
+  trait FutureOpsBase[+A] {
+    def map[B : Manifest](f: Rep[A] => Rep[B]): Rep[Future[B]]
+    def flatMap[B : Manifest](f: Rep[A] => Rep[Future[B]]): Rep[Future[B]]
+    def foreach(f: Rep[A] => Rep[Unit]): Rep[Unit]
+    def withFilter(f: Rep[A] => Rep[Boolean]): Rep[Future[A]]
   }
+
+  type FutureOpsCls[+A] <: FutureOpsBase[A]
+  implicit def FutureOpsCls[A : Manifest](f: Rep[Future[A]]): FutureOpsCls[A]
+
   def future[A : Manifest](a: Rep[A]): Rep[Future[A]] // Wrong: should be a by-name parameter
-  def future_map[A : Manifest, B : Manifest](a: Rep[Future[A]], f: Rep[A] => Rep[B]): Rep[Future[B]]
-  def future_flatMap[A : Manifest, B : Manifest](a: Rep[Future[A]], f: Rep[A] => Rep[Future[B]]): Rep[Future[B]]
-  def future_foreach[A : Manifest](a: Rep[Future[A]], f: Rep[A] => Rep[Unit]): Rep[Unit]
-  def future_filter[A : Manifest](a: Rep[Future[A]], f: Rep[A] => Rep[Boolean]): Rep[Future[A]]
 }
 
 trait FutureOpsExp extends FutureOps with EffectExp {
@@ -29,29 +29,32 @@ trait FutureOpsExp extends FutureOps with EffectExp {
 
   def future[A : Manifest](a: Rep[A]) = FuturePure(a)
 
-  def future_map[A : Manifest, B : Manifest](a: Exp[Future[A]], f: Exp[A] => Exp[B]) = {
-    val x = fresh[A]
-    val b = reifyEffects(f(x))
-    reflectEffect(FutureMap(a, x, b), summarizeEffects(b).star)
+  implicit class FutureOpsCls[+A : Manifest](a: Exp[Future[A]]) extends FutureOpsBase[A] {
+    def map[B: Manifest](f: Exp[A] => Exp[B]) = {
+      val x = fresh[A]
+      val b = reifyEffects(f(x))
+      reflectEffect(FutureMap(a, x, b), summarizeEffects(b).star)
+    }
+
+    def flatMap[B: Manifest](f: Exp[A] => Exp[Future[B]]) = {
+      val x = fresh[A]
+      val b = reifyEffects(f(x))
+      reflectEffect(FutureFlatMap(a, x, b), summarizeEffects(b).star)
+    }
+
+    def foreach(f: Exp[A] => Exp[Unit]) = {
+      val x = fresh[A]
+      val b = reifyEffects(f(x))
+      reflectEffect(FutureForeach(a, x, b), summarizeEffects(b).star)
+    }
+
+    def withFilter(f: Exp[A] => Exp[Boolean]) = {
+      val x = fresh[A]
+      val b = reifyEffects(f(x))
+      reflectEffect(FutureFilter(a, x, b), summarizeEffects(b).star)
+    }
   }
 
-  def future_flatMap[A : Manifest, B : Manifest](a: Exp[Future[A]], f: Exp[A] => Exp[Future[B]]) = {
-    val x = fresh[A]
-    val b = reifyEffects(f(x))
-    reflectEffect(FutureFlatMap(a, x, b), summarizeEffects(b).star)
-  }
-
-  def future_foreach[A : Manifest](a: Exp[Future[A]], f: Exp[A] => Exp[Unit]) = {
-    val x = fresh[A]
-    val b = reifyEffects(f(x))
-    reflectEffect(FutureForeach(a, x, b), summarizeEffects(b).star)
-  }
-
-  def future_filter[A : Manifest](a: Exp[Future[A]], f: Exp[A] => Exp[Boolean]) = {
-    val x = fresh[A]
-    val b = reifyEffects(f(x))
-    reflectEffect(FutureFilter(a, x, b), summarizeEffects(b).star)
-  }
 
   override def syms(e: Any) = e match {
     case FutureMap(a, _, b) => syms(a) ++ syms(b)
@@ -78,44 +81,56 @@ trait FutureOpsExp extends FutureOps with EffectExp {
   }
 }
 
-/*trait JSPromiseOps { this: Base with Arrays with JSLiteral with Equals with Functions with OrderingOps with IfThenElse =>
-  type Promise[A] = JSLiteral { val value: Array[A]; val callbacks: Array[A => Unit] }
-  def promise[A : Manifest](): Rep[Promise[A]] = new JSLiteral {
-    val value = array[A]()
-    val callbacks = array[A => Unit]()
-  }
-  def future[A : Manifest](a: Rep[A]): Rep[Promise[A]] = new JSLiteral {
-    val value = array(a)
-    val callbacks = array[A => Unit]()
-  }
-  def promise_complete[A : Manifest](p: Rep[Promise[A]], value: Rep[A]) {
-    if (p.value.length == unit(0)) {
-      for (callback <- p.callbacks) {
-        callback(value)
-      }
-      val vs = p.value
-      vs(unit(0)) = value
-    }
-  }
-  def promise_map[A : Manifest, B : Manifest](a: Rep[Promise[A]], f: Rep[A] => Rep[B]): Rep[Promise[B]] = {
-    val p = promise[B]()
-    promise_foreach(a, (a: Rep[A]) => promise_complete(p, f(a)))
-    p
-  }
-  def promise_flatMap[A : Manifest, B : Manifest](a: Rep[Promise[A]], f: Rep[A] => Rep[Promise[B]]): Rep[Promise[B]] = {
-    val p = promise[B]()
-    promise_foreach(a, (a: Rep[A]) => promise_foreach(f(a), (b: Rep[B]) => promise_complete(p, b)))
-    p
-  }
-  def promise_foreach[A : Manifest](a: Rep[Promise[A]], f: Rep[A] => Rep[Unit]): Rep[Unit] = {
-    if (a.value.length > unit(0)) {
-      f(a.value(unit(0)))
-    } else {
-      a.callbacks(a.callbacks.length) = f
-    }
-  }
-}*/
+/*
+trait JSPromiseOps { this: Base with ListOps with JSTraits with IfThenElse with Functions with OptionOps =>
 
+  class Promise[A : Manifest] { pa =>
+    var value: Rep[Option[A]] = unit(Option.empty[A])
+    private var callbacks: Rep[List[A => Unit]] = List[A => Unit]()
+
+    def complete(a: Rep[A]): Rep[Unit] = {
+      if (value.isEmpty) {
+        for (callback <- callbacks) yield {
+          callback(a)
+        }
+        value = a
+      }
+    }
+
+    def foreach(callback: Rep[A] => Rep[Unit]): Rep[Unit] = {
+      value.fold(
+        callbacks = callback :: callbacks,
+        callback
+      )
+    }
+
+    def map[B : Manifest](f: Rep[A] => Rep[B]): Rep[Promise[B]] = {
+      val p = promise[B]
+      for (a <- pa) yield {
+        p.complete(f(a))
+      }
+      p
+    }
+
+    def flatMap[B : Manifest](f: Rep[A] => Rep[Promise[B]]): Rep[Promise[B]] = {
+      val p = promise[B]
+      for {
+        a <- pa
+        b <- f(a)
+      } p.complete(b)
+      p
+    }
+  }
+  implicit def proxyRepPromise[A : Manifest](p: Rep[Promise[A]]): Promise[A] = repProxy[Promise[A]](p)
+
+  def promise[A : Manifest]: Rep[Promise[A]] = register[Promise[A]](this).apply()
+  def future[A : Manifest](a: => Rep[A]): Rep[Promise[A]] = {
+    val p = promise[A]
+    p.complete(a)
+    p
+  }
+}
+*/
 trait JSGenFutureOps extends JSNestedCodegen {
   val IR: FutureOpsExp
   import IR._
@@ -124,23 +139,30 @@ trait JSGenFutureOps extends JSNestedCodegen {
     case FuturePure(a) =>
       emitValDef(sym, "new Promise(" + quote(a) + ")")
     case FutureMap(a, x, b) =>
-      stream.println("var " + quote(sym) + " = " + quote(a) + ".map(function (" + quote(x) + ") {")
+      emitValDef(sym, "new Promise()")
+      stream.println(quote(a) + ".onComplete(function (" + quote(x) + ") {")
       emitBlock(b)
-      stream.println("return " + quote(getBlockResult(b)))
+      stream.println(quote(sym) + ".complete(" + quote(getBlockResult(b)) + ");")
       stream.println("});")
-    case FutureFlatMap(a, x, b) =>
-      stream.println("var " + quote(sym) + " = " + quote(a) + ".flatMap(function (" + quote(x) + ") {")
+    case FutureFlatMap(a, x, b) => // TODO optimize
+      emitValDef(sym, "new Promise()")
+      stream.println(quote(a) + ".onComplete(function (" + quote(x) + ") {")
       emitBlock(b)
-      stream.println("return " + quote(getBlockResult(b)))
+      stream.println(quote(getBlockResult(b)) + ".onComplete(function (v) {")
+      stream.println(quote(sym) + ".complete(v);")
+      stream.println("});")
       stream.println("});")
     case FutureForeach(a, x, b) =>
-      stream.println("var " + quote(sym) + " = " + quote(a) + ".foreach(function (" + quote(x) + ") {")
+      stream.println("var " + quote(sym) + " = " + quote(a) + ".onComplete(function (" + quote(x) + ") {")
       emitBlock(b)
       stream.println("});")
     case FutureFilter(a, x, b) =>
-      stream.println("var " + quote(sym) + " = " + quote(a) + ".filter(function (" + quote(x) + ") {")
+      emitValDef(sym, "new Promise()")
+      stream.println(quote(a) + ".onComplete(function (" + quote(x) + ") {")
       emitBlock(b)
-      stream.println("return " + quote(getBlockResult(b)))
+      stream.println("if (" + quote(getBlockResult(b)) + " === true) {")
+      stream.println(quote(sym) + ".complete(" + quote(getBlockResult(b)) + ");")
+      stream.println("}")
       stream.println("});")
     case _ => super.emitNode(sym, rhs)
   }
@@ -164,37 +186,13 @@ trait JSGenFutureOps extends JSNestedCodegen {
                   |    }
                   |  }
                   |};
-                  |Promise.prototype.foreach = function (callback) {
+                  |Promise.prototype.onComplete = function (callback) {
                   |  if (this.value === undefined) {
                   |    this.callbacks.push(callback);
                   |  } else {
                   |    callback(this.value);
                   |  }
                   |};
-                  |Promise.prototype.map = function (f) {
-                  |  var p = new Promise();
-                  |  this.foreach(function (a) {
-                  |    p.complete(f(a));
-                  |  });
-                  |  return p;
-                  |};
-                  |Promise.prototype.flatMap = function (f) {
-                  |  var p = new Promise();
-                  |  this.foreach(function (a) {
-                  |    f(a).foreach(function (b) {
-                  |      p.complete(b);
-                  |    });
-                  |  });
-                  |  return p;
-                  |};
-                  |Promise.prototype.filter = function (f) {
-                  |  var p = new Promise();
-                  |  this.foreach(function (a) {
-                  |    if (f(a) === true) {
-                  |      p.complete(a);
-                  |    }
-                  |  });
-                  |}
                   |""".stripMargin)
     out.flush()
   }
