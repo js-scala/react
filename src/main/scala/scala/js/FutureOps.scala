@@ -81,56 +81,6 @@ trait FutureOpsExp extends FutureOps with EffectExp {
   }
 }
 
-/*
-trait JSPromiseOps { this: Base with ListOps with JSTraits with IfThenElse with Functions with OptionOps =>
-
-  class Promise[A : Manifest] { pa =>
-    var value: Rep[Option[A]] = unit(Option.empty[A])
-    private var callbacks: Rep[List[A => Unit]] = List[A => Unit]()
-
-    def complete(a: Rep[A]): Rep[Unit] = {
-      if (value.isEmpty) {
-        for (callback <- callbacks) yield {
-          callback(a)
-        }
-        value = a
-      }
-    }
-
-    def foreach(callback: Rep[A] => Rep[Unit]): Rep[Unit] = {
-      value.fold(
-        callbacks = callback :: callbacks,
-        callback
-      )
-    }
-
-    def map[B : Manifest](f: Rep[A] => Rep[B]): Rep[Promise[B]] = {
-      val p = promise[B]
-      for (a <- pa) yield {
-        p.complete(f(a))
-      }
-      p
-    }
-
-    def flatMap[B : Manifest](f: Rep[A] => Rep[Promise[B]]): Rep[Promise[B]] = {
-      val p = promise[B]
-      for {
-        a <- pa
-        b <- f(a)
-      } p.complete(b)
-      p
-    }
-  }
-  implicit def proxyRepPromise[A : Manifest](p: Rep[Promise[A]]): Promise[A] = repProxy[Promise[A]](p)
-
-  def promise[A : Manifest]: Rep[Promise[A]] = register[Promise[A]](this).apply()
-  def future[A : Manifest](a: => Rep[A]): Rep[Promise[A]] = {
-    val p = promise[A]
-    p.complete(a)
-    p
-  }
-}
-*/
 trait JSGenFutureOps extends JSNestedCodegen {
   val IR: FutureOpsExp
   import IR._
