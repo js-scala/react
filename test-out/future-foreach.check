@@ -1,44 +1,75 @@
-var Promise = function (value) {
-  if (value !== undefined) {
-    this.value = value;
-  }
-  this.callbacks = [];
-};
-Promise.prototype.complete = function (value) {
-  if (this.value !== undefined) {
-    throw "This promise has already been completed";
-  } else {
-    this.value = value;
-    for (var i = 0, n = this.callbacks.length ; i < n ; i++) {
-      var callback = this.callbacks[i];
-      callback(value);
-    }
-  }
-};
-Promise.prototype.onComplete = function (callback) {
-  if (this.value === undefined) {
-    this.callbacks.push(callback);
-  } else {
-    callback(this.value);
-  }
-};
-
 function main() {
-var x0 = new Promise();
-setTimeout(function () { x0.complete(null); }, 1000)
-var x16 = x0.onComplete(function (x1) {
-var x2 = console.log("Hello");
-var x3 = new Promise(x2);
-var x14 = x3.onComplete(function (x4) {
-var x5 = new Promise();
-setTimeout(function () { x5.complete(null); }, 2000)
-var x12 = x5.onComplete(function (x6) {
-var x7 = console.log(", World!");
-var x8 = new Promise(x7);
-var x10 = x8.onComplete(function (x9) {
-});
-});
-});
-});
-return x16
+var x0 = { v: null, cs: [] };
+var x1 = function() {
+if (x0.v !== null) {
+throw 'This Promise has already been completed';
+} else {
+x0.v = {};
+for (var x30 = 0, x31 = x0.cs.length ; x30 < x31 ; x30++) {
+x0.cs[x30]({});
+}
+}
+var x2 = undefined;
+return x2
+}
+setTimeout(x1, 1000);
+var x5 = x0;
+var x21 = function() {
+return undefined
+}
+var x17 = function() {
+var x18 = console.log(", World!");
+var x19 = { v: x18, cs: [] };
+var x20 = x19;
+if (x20.v === null) {
+x20.cs.push(x21);
+} else {
+x21(x20.v);
+}
+var x22 = undefined;
+return x22
+}
+var x10 = function() {
+var x11 = { v: null, cs: [] };
+var x12 = function() {
+if (x11.v !== null) {
+throw 'This Promise has already been completed';
+} else {
+x11.v = {};
+for (var x32 = 0, x33 = x11.cs.length ; x32 < x33 ; x32++) {
+x11.cs[x32]({});
+}
+}
+var x13 = undefined;
+return x13
+}
+setTimeout(x12, 2000);
+var x16 = x11;
+if (x16.v === null) {
+x16.cs.push(x17);
+} else {
+x17(x16.v);
+}
+var x24 = undefined;
+return x24
+}
+var x6 = function() {
+var x7 = console.log("Hello");
+var x8 = { v: x7, cs: [] };
+var x9 = x8;
+if (x9.v === null) {
+x9.cs.push(x10);
+} else {
+x10(x9.v);
+}
+var x26 = undefined;
+return x26
+}
+if (x5.v === null) {
+x5.cs.push(x6);
+} else {
+x6(x5.v);
+}
+var x28 = undefined;
+return x28
 }
