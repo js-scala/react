@@ -1,19 +1,28 @@
 package scala.js
 
-import virtualization.lms.common.Base
-import concurrent.Future
+import virtualization.lms.common.{Structs, Functions, Base}
 
-trait React { this: Base with JSDom with FutureOps =>
+trait React { this: Base with Functions =>
 
-  trait Events[+A]
-  implicit class EventsOps[A](a: Rep[Events[A]]) {
-    def merge[B >: A](b: Rep[Events[B]]): Rep[Events[B]] = events_merge(a, b)
-    def map[B](f: Rep[A] => Rep[B]): Rep[Events[B]] = events_map(a, f)
+  type RepEvents[+A] = Rep[(A => Unit) => Unit]
+
+  def Events[A : Manifest](es: Rep[(A => Unit)] => Rep[Unit]): RepEvents[A] = es
+
+  implicit class EventsOps[A : Manifest](es: RepEvents[A]) {
+
+    def foreach(f: Rep[A] => Rep[Unit]): Rep[Unit] = es(f)
+
+    def map[B : Manifest](f: Rep[A] => Rep[B]): RepEvents[B] = Events[B] { g =>
+      es((e: Rep[A]) => g(f(e)))
+    }
+
+    def merge[B >: A : Manifest](bs: RepEvents[B]): RepEvents[B] = Events[B] { f =>
+      es((a: Rep[A]) => f(a))
+      bs((b: Rep[B]) => f(b))
+    }
   }
-  def events_merge[A, B >: A](a: Rep[Events[A]], b: Rep[Events[B]]): Rep[Events[B]]
-  def events_map[A, B](a: Rep[Events[A]], f: Rep[A] => Rep[B]): Rep[Events[B]]
 
-  trait EventSource[A] extends Events[A]
+  /*trait EventSource[A] extends Events[A]
   implicit class EventSourceOps[A](es: Rep[EventSource[A]]) {
     def emit(a: Rep[A]): Rep[Unit] = eventsource_emit(es, a)
   }
@@ -21,9 +30,9 @@ trait React { this: Base with JSDom with FutureOps =>
   object EventSource {
     def apply[A](f: Rep[EventSource[A]] => Rep[Unit]) = eventsource_apply[A](f)
   }
-  def eventsource_apply[A](f: Rep[EventSource[A]] => Rep[Unit]): Rep[EventSource[A]]
+  def eventsource_apply[A](f: Rep[EventSource[A]] => Rep[Unit]): Rep[EventSource[A]]*/
 
-  trait Observer[A]
+  /*trait Observer[A]
   implicit class ObserverOps[A](o: Rep[Observer[A]]) {
     def dispose(): Rep[Unit] = observer_dispose(o)
   }
@@ -61,5 +70,5 @@ trait React { this: Base with JSDom with FutureOps =>
   implicit class SVarOps[A](s: Rep[SVar[A]]) {
     def update(value: Rep[A]) = svar_update(s, value)
   }
-  def svar_update[A](s: Rep[SVar[A]], value: Rep[A]): Rep[A]
+  def svar_update[A](s: Rep[SVar[A]], value: Rep[A]): Rep[A]*/
 }

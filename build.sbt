@@ -12,3 +12,5 @@ libraryDependencies ++= Seq(
 )
 
 scalacOptions ++= Seq("-deprecation", "-unchecked", "-Xexperimental", "-Yvirtualize")
+
+parallelExecution in Test := false
