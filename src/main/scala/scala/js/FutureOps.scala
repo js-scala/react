@@ -3,6 +3,8 @@ package scala.js
 import virtualization.lms.common._
 import concurrent.{Promise, Future}
 
+// TODO Encode at the type level whether a promise has been completed or not
+// TODO Reify the promise_put statements in a function (in the generated code)
 trait FutureOps { this: Base with IfThenElse =>
 
   def promise[A : Manifest]: Rep[Promise[A]]
