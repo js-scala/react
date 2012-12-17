@@ -1,75 +1,64 @@
 function main() {
 var x0 = { v: null, cs: [] };
-var x1 = function() {
-if (x0.v !== null) {
+var x2 = function(x3,x4) {
+var x5 = x3;
+var x6 = x4;
+if (x5.v !== null) {
 throw 'This Promise has already been completed';
 } else {
-x0.v = {};
-for (var x30 = 0, x31 = x0.cs.length ; x30 < x31 ; x30++) {
-x0.cs[x30]({});
+x5.v = x6;
+for (var x50 = 0, x51 = x5.cs.length ; x50 < x51 ; x50++) {
+x5.cs[x50](x6);
 }
 }
-var x2 = undefined;
-return x2
+var x7 = undefined;
+return x7
+}
+var x1 = function() {
+var x10 = x2(x0,{});
+return x10
 }
 setTimeout(x1, 1000);
-var x5 = x0;
-var x21 = function() {
+var x13 = x0;
+var x14 = function(x15,x16) {
+var x17 = x15;
+var x18 = x16;
+if (x17.v === null) {
+x17.cs.push(x18);
+} else {
+x18(x17.v);
+}
+var x19 = undefined;
+return x19
+}
+var x37 = function() {
 return undefined
 }
-var x17 = function() {
-var x18 = console.log(", World!");
-var x19 = { v: x18, cs: [] };
-var x20 = x19;
-if (x20.v === null) {
-x20.cs.push(x21);
-} else {
-x21(x20.v);
+var x33 = function() {
+var x34 = console.log(", World!");
+var x35 = { v: x34, cs: [] };
+var x36 = x35;
+var x39 = x14(x36,x37);
+return x39
 }
-var x22 = undefined;
-return x22
+var x25 = function() {
+var x26 = { v: null, cs: [] };
+var x27 = function() {
+var x29 = x2(x26,{});
+return x29
 }
-var x10 = function() {
-var x11 = { v: null, cs: [] };
-var x12 = function() {
-if (x11.v !== null) {
-throw 'This Promise has already been completed';
-} else {
-x11.v = {};
-for (var x32 = 0, x33 = x11.cs.length ; x32 < x33 ; x32++) {
-x11.cs[x32]({});
+setTimeout(x27, 2000);
+var x32 = x26;
+var x42 = x14(x32,x33);
+return x42
 }
+var x21 = function() {
+var x22 = console.log("Hello");
+var x23 = { v: x22, cs: [] };
+var x24 = x23;
+var x45 = x14(x24,x25);
+return x45
 }
-var x13 = undefined;
-return x13
-}
-setTimeout(x12, 2000);
-var x16 = x11;
-if (x16.v === null) {
-x16.cs.push(x17);
-} else {
-x17(x16.v);
-}
-var x24 = undefined;
-return x24
-}
-var x6 = function() {
-var x7 = console.log("Hello");
-var x8 = { v: x7, cs: [] };
-var x9 = x8;
-if (x9.v === null) {
-x9.cs.push(x10);
-} else {
-x10(x9.v);
-}
-var x26 = undefined;
-return x26
-}
-if (x5.v === null) {
-x5.cs.push(x6);
-} else {
-x6(x5.v);
-}
-var x28 = undefined;
-return x28
+var x48 = x14(x13,x21);
+return x48
 }

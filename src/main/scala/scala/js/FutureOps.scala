@@ -4,7 +4,7 @@ import virtualization.lms.common._
 import concurrent.{Promise, Future}
 
 // TODO Encode at the type level whether a promise has been completed or not
-// TODO Reify the promise_put statements in a function (in the generated code)
+// TODO Reify Future operations
 trait FutureOps { this: Base with IfThenElse =>
 
   def promise[A : Manifest]: Rep[Promise[A]]
@@ -43,7 +43,7 @@ trait FutureOps { this: Base with IfThenElse =>
   def future_foreach[A : Manifest](fa: Rep[Future[A]], f: Rep[A] => Rep[Unit]): Rep[Unit]
 }
 
-trait FutureOpsExp extends FutureOps with EffectExp { this: IfThenElse with Functions =>
+trait FutureOpsExp extends FutureOps with EffectExp { this: IfThenElse with TupledFunctions =>
 
   case class PromiseNew[A](value: Option[Exp[A]]) extends Def[Promise[A]]
   case class PromisePut[A](p: Exp[Promise[A]], v: Exp[A]) extends Def[Unit]
@@ -51,12 +51,19 @@ trait FutureOpsExp extends FutureOps with EffectExp { this: IfThenElse with Func
   case class FutureForeach[A](fa: Exp[Future[A]], f: Exp[A => Unit]) extends Def[Unit]
 
   def promise[A : Manifest] = reflectEffect(PromiseNew[A](None))
-  def promise_put[A : Manifest](p: Exp[Promise[A]], v: Exp[A]) = reflectEffect(PromisePut(p, v))
+  def promise_put[A : Manifest](p: Exp[Promise[A]], v: Exp[A]) = promise_putF[A].apply(p, v)
   def promise_future[A : Manifest](p: Exp[Promise[A]]) = PromiseFuture(p)
 
   def future[A : Manifest](a: Exp[A]) = (PromiseNew(Some(a)): Exp[Promise[A]]).future
-  def future_foreach[A : Manifest](fa: Exp[Future[A]], f: Exp[A] => Exp[Unit]) = reflectEffect(FutureForeach(fa, f))
+  def future_foreach[A : Manifest](fa: Exp[Future[A]], f: Exp[A] => Exp[Unit]) = future_foreachF[A].apply(fa, f)
 
+  // TODO Support reified polymorphic functions
+  def promise_putF[A : Manifest]: Exp[((Promise[A], A)) => Unit] = { (p: Exp[Promise[A]], v: Exp[A]) =>
+    reflectEffect(PromisePut(p, v))
+  }
+  def future_foreachF[A : Manifest]: Exp[((Future[A], A => Unit)) => Unit] = { (fa: Exp[Future[A]], f: Exp[A => Unit]) =>
+    reflectEffect(FutureForeach(fa, f))
+  }
 }
 
 trait JSGenFutureOps extends JSNestedCodegen {

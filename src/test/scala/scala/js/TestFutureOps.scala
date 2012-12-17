@@ -90,7 +90,7 @@ class TestFutureOps extends FileDiffSuite2("test-out/") with Suite {
 
     testWithOutFile("future-foreach") { out =>
       val prog = new Prog with EffectExp with SleepExp with FutureOpsExp with IfThenElseExp with TupledFunctionsRecursiveExp with JSDebugExp with LiftString with LiftNumeric
-      val codegen = new JSGenEffect with JSGenSleep with JSGenFutureOps with JSGenIfThenElse with JSGenFunctions with JSGenDebug { val IR: prog.type = prog }
+      val codegen = new JSGenEffect with JSGenSleep with JSGenFutureOps with JSGenIfThenElse with JSGenFunctions with GenericGenUnboxedTupleAccess with JSGenDebug { val IR: prog.type = prog }
       codegen.emitSource0(prog.main _, "main", out)
     }
   }
@@ -105,7 +105,7 @@ class TestFutureOps extends FileDiffSuite2("test-out/") with Suite {
 
     testWithOutFile("future-mapflatmap") { out =>
       val prog = new Prog with EffectExp with AjaxExp with FutureOpsExp with IfThenElseExp with TupledFunctionsRecursiveExp
-      val codegen = new JSGenEffect with JSGenAjax with JSGenFutureOps with JSGenIfThenElse with JSGenFunctions { val IR: prog.type = prog }
+      val codegen = new JSGenEffect with JSGenAjax with JSGenFutureOps with JSGenIfThenElse with JSGenFunctions with GenericGenUnboxedTupleAccess { val IR: prog.type = prog }
       codegen.emitSource(prog.main _, "main", out)
     }
   }

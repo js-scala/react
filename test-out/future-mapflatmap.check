@@ -1,82 +1,60 @@
 function main(x0) {
 var x1 = { v: null, cs: [] };
-var x2 = function(x3) {
-if (x1.v !== null) {
+var x4 = function(x5,x6) {
+var x7 = x5;
+var x8 = x6;
+if (x7.v !== null) {
 throw 'This Promise has already been completed';
 } else {
-x1.v = x3;
-for (var x34 = 0, x35 = x1.cs.length ; x34 < x35 ; x34++) {
-x1.cs[x34](x3);
+x7.v = x8;
+for (var x55 = 0, x56 = x7.cs.length ; x55 < x56 ; x55++) {
+x7.cs[x55](x8);
 }
 }
-var x4 = undefined;
-return x4
+var x9 = undefined;
+return x9
+}
+var x2 = function(x3) {
+var x12 = x4(x1,x3);
+return x12
 }
 $.get(x0, function (d, t, xhr) { x2(xhr.responseText); });
-var x8 = { v: null, cs: [] };
-var x7 = x1;
-var x25 = function(x26) {
-if (x8.v !== null) {
-throw 'This Promise has already been completed';
+var x16 = { v: null, cs: [] };
+var x15 = x1;
+var x17 = function(x18,x19) {
+var x20 = x18;
+var x21 = x19;
+if (x20.v === null) {
+x20.cs.push(x21);
 } else {
-x8.v = x26;
-for (var x36 = 0, x37 = x8.cs.length ; x36 < x37 ; x36++) {
-x8.cs[x36](x26);
+x21(x20.v);
 }
+var x22 = undefined;
+return x22
 }
-var x27 = undefined;
-return x27
+var x43 = function(x44) {
+var x46 = x4(x16,x44);
+return x46
 }
-var x9 = function(x10) {
-var x11 = { v: null, cs: [] };
-var x12 = function(x13) {
-if (x11.v !== null) {
-throw 'This Promise has already been completed';
-} else {
-x11.v = x13;
-for (var x38 = 0, x39 = x11.cs.length ; x38 < x39 ; x38++) {
-x11.cs[x38](x13);
+var x24 = function(x25) {
+var x26 = { v: null, cs: [] };
+var x27 = function(x28) {
+var x30 = x4(x26,x28);
+return x30
 }
+$.get(x25, function (d, t, xhr) { x27(xhr.responseText); });
+var x34 = { v: null, cs: [] };
+var x33 = x26;
+var x35 = function(x36) {
+var x38 = x4(x34,x36);
+return x38
 }
-var x14 = undefined;
-return x14
+var x41 = x17(x33,x35);
+var x42 = x34;
+var x49 = x17(x42,x43);
+return x49
 }
-$.get(x10, function (d, t, xhr) { x12(xhr.responseText); });
-var x18 = { v: null, cs: [] };
-var x17 = x11;
-var x19 = function(x20) {
-if (x18.v !== null) {
-throw 'This Promise has already been completed';
-} else {
-x18.v = x20;
-for (var x40 = 0, x41 = x18.cs.length ; x40 < x41 ; x40++) {
-x18.cs[x40](x20);
-}
-}
-var x21 = undefined;
-return x21
-}
-if (x17.v === null) {
-x17.cs.push(x19);
-} else {
-x19(x17.v);
-}
-var x23 = undefined;
-var x24 = x18;
-if (x24.v === null) {
-x24.cs.push(x25);
-} else {
-x25(x24.v);
-}
-var x29 = undefined;
-return x29
-}
-if (x7.v === null) {
-x7.cs.push(x9);
-} else {
-x9(x7.v);
-}
-var x31 = undefined;
-var x32 = x8;
-return x32
+var x52 = x17(x15,x24);
+var x53 = x16;
+return x53
 }
