@@ -37,7 +37,7 @@ class TestReact extends FileDiffSuite2("test-out/") with Suite {
 
     testWithOutFile("events-foreach") { out =>
       val prog = new Prog with EffectExp with FutureOpsExp with React with JSDomExp with NumericOpsExp with JSFunctionsExp with IfThenElseExp with StructExp with JSDebugExp
-      val codegen = new JSGenEffect with JSGenFutureOps with JSGenDom with JSGenNumericOps with JSGenFunctions with JSGenDebug { val IR: prog.type = prog }
+      val codegen = new JSGenEffect with JSGenFutureOps with JSGenDom with JSGenNumericOps with JSGenFunctions with JSGenStruct with JSGenDebug { val IR: prog.type = prog }
       codegen.emitSource0(prog.main _, "main", out)
     }
   }
