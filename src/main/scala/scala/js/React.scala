@@ -2,23 +2,23 @@ package scala.js
 
 import virtualization.lms.common.{Structs, Functions, Base}
 
-trait React { this: Base with Functions =>
+trait React { this: Base with Functions with Structs =>
 
-  type RepEvents[+A] = Rep[(A => Unit) => Unit]
+  type Events[+A] = Record { val onValue: (A => Unit) => Unit }
 
-  def Events[A : Manifest](es: Rep[(A => Unit)] => Rep[Unit]): RepEvents[A] = es
+  def Events[A : Manifest](es: Rep[(A => Unit)] => Rep[Unit]): Rep[Events[A]] = new Record { val onValue = fun(es) }
 
-  implicit class EventsOps[A : Manifest](es: RepEvents[A]) {
+  implicit class EventsOps[A : Manifest](es: Rep[Events[A]]) {
 
-    def foreach(f: Rep[A] => Rep[Unit]): Rep[Unit] = es(f)
+    def foreach(f: Rep[A] => Rep[Unit]): Rep[Unit] = es.onValue.apply(f)
 
-    def map[B : Manifest](f: Rep[A] => Rep[B]): RepEvents[B] = Events[B] { g =>
-      es((e: Rep[A]) => g(f(e)))
+    def map[B : Manifest](f: Rep[A] => Rep[B]): Rep[Events[B]] = Events[B] { g =>
+      es.onValue.apply((e: Rep[A]) => g(f(e)))
     }
 
-    def merge[B >: A : Manifest](bs: RepEvents[B]): RepEvents[B] = Events[B] { f =>
-      es((a: Rep[A]) => f(a))
-      bs((b: Rep[B]) => f(b))
+    def merge[B >: A : Manifest](bs: Rep[Events[B]]): Rep[Events[B]] = Events[B] { f =>
+      es.onValue.apply((a: Rep[A]) => f(a))
+      bs.onValue.apply((b: Rep[B]) => f(b))
     }
   }
 

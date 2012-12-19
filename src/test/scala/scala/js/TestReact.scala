@@ -9,7 +9,7 @@ class TestReact extends FileDiffSuite2("test-out/") with Suite {
 
     trait Prog { this: Base with FutureOps with React with JSDom with NumericOps with Functions with JSDebug =>
 
-      def domEvents[A : Manifest](event: EventName[A], e: Rep[EventTarget] = window): RepEvents[A] = Events[A] { f =>
+      def domEvents[A : Manifest](event: EventName[A], e: Rep[EventTarget] = window): Rep[Events[A]] = Events[A] { f =>
         e.on(event) { e => f(e) }
       }
 
@@ -35,10 +35,10 @@ class TestReact extends FileDiffSuite2("test-out/") with Suite {
       }
     }
 
-    /*testWithOutFile("events-foreach") { out =>
-      val prog = new Prog with EffectExp with FutureOpsExp with React with JSDomExp with NumericOpsExp with JSFunctionsExp with JSDebugExp
+    testWithOutFile("events-foreach") { out =>
+      val prog = new Prog with EffectExp with FutureOpsExp with React with JSDomExp with NumericOpsExp with JSFunctionsExp with IfThenElseExp with StructExp with JSDebugExp
       val codegen = new JSGenEffect with JSGenFutureOps with JSGenDom with JSGenNumericOps with JSGenFunctions with JSGenDebug { val IR: prog.type = prog }
       codegen.emitSource0(prog.main _, "main", out)
-    }*/
+    }
   }
 }
