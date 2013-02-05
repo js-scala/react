@@ -4,11 +4,11 @@ organization := "js-scala"
 
 scalaOrganization := "org.scala-lang.virtualized"
 
-scalaVersion := "2.10.0-M7"
+scalaVersion := "2.10.0"
 
 libraryDependencies ++= Seq(
-    "EPFL" %% "js-scala" % "0.2-SNAPSHOT",
-    "org.scalatest" % "scalatest_2.10.0-M7" % "1.9-2.10.0-M7-B1" % "test"
+    "EPFL" %% "js-scala" % "0.3-SNAPSHOT",
+    "org.scalatest" %% "scalatest" % "1.9.1" % "test"
 )
 
 scalacOptions ++= Seq("-deprecation", "-unchecked", "-Xexperimental", "-Yvirtualize")
