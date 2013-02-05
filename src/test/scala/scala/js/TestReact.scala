@@ -5,7 +5,7 @@ import org.scalatest.Suite
 
 class TestReact extends FileDiffSuite2("test-out/") with Suite {
 
-  def testForeach() {
+  def testForeachAndMap() {
 
     trait Prog { this: Base with FutureOps with React with JSDom with NumericOps with Functions with JSDebug =>
 
@@ -31,13 +31,14 @@ class TestReact extends FileDiffSuite2("test-out/") with Suite {
 
       def main(): Rep[Unit] = {
         val wheels = domEvents(MouseWheel)
-        for (wheel <- wheels) log(wheel.wheelDeltaY)
+        val deltaYs = wheels map (_.wheelDeltaY)
+        for (deltaY <- deltaYs) log(deltaY)
       }
     }
 
     testWithOutFile("events-foreach") { out =>
-      val prog = new Prog with EffectExp with FutureOpsExp with React with JSDomExp with NumericOpsExp with JSFunctionsExp with IfThenElseExp with StructExp with JSDebugExp
-      val codegen = new JSGenEffect with JSGenFutureOps with JSGenDom with JSGenNumericOps with JSGenFunctions with JSGenStruct with JSGenDebug { val IR: prog.type = prog }
+      val prog = new Prog with EffectExp with FutureOpsExp with React with JSDomExp with NumericOpsExp with JSFunctionsExp with IfThenElseExp with JSDebugExp
+      val codegen = new JSGenEffect with JSGenFutureOps with JSGenDom with JSGenNumericOps with JSGenFunctions with JSGenDebug { val IR: prog.type = prog }
       codegen.emitSource0(prog.main _, "main", out)
     }
   }

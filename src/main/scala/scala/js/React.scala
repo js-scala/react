@@ -1,24 +1,25 @@
 package scala.js
 
-import virtualization.lms.common.{Structs, Functions, Base}
+import virtualization.lms.common.{Functions, Base}
 
-trait React { this: Base with Functions with Structs =>
+trait React { this: Base with Functions =>
 
-  type Events[+A] = Record { val onValue: (A => Unit) => Unit }
+  // A stream of events is a function that pushes events to a callback
+  type Events[+A] = (A => Unit) => Unit
 
-  def Events[A : Manifest](es: Rep[(A => Unit)] => Rep[Unit]): Rep[Events[A]] = new Record { val onValue = fun(es) }
+  def Events[A : Manifest](es: Rep[(A => Unit)] => Rep[Unit]): Rep[Events[A]] = fun(es)
 
-  implicit class EventsOps[A : Manifest](es: Rep[Events[A]]) {
+  implicit class EventsOps[A : Manifest](es: Rep[Events[A]]) extends Serializable {
 
-    def foreach(f: Rep[A] => Rep[Unit]): Rep[Unit] = es.onValue.apply(f)
+    def foreach(f: Rep[A] => Rep[Unit]): Rep[Unit] = es(f)
 
     def map[B : Manifest](f: Rep[A] => Rep[B]): Rep[Events[B]] = Events[B] { g =>
-      es.onValue.apply((e: Rep[A]) => g(f(e)))
+      es((e: Rep[A]) => g(f(e)))
     }
 
     def merge[B >: A : Manifest](bs: Rep[Events[B]]): Rep[Events[B]] = Events[B] { f =>
-      es.onValue.apply((a: Rep[A]) => f(a))
-      bs.onValue.apply((b: Rep[B]) => f(b))
+      es((a: Rep[A]) => f(a))
+      bs((b: Rep[B]) => f(b))
     }
   }
 
