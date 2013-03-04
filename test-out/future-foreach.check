@@ -12,12 +12,10 @@ x5.cs[x50](x6);
 }
 }
 var x7 = undefined;
-return x7
-}
+};
 var x1 = function() {
 var x10 = x2(x0,{});
-return x10
-}
+};
 setTimeout(x1, 1000);
 var x13 = x0;
 var x14 = function(x15,x16) {
@@ -29,36 +27,29 @@ x17.cs.push(x18);
 x18(x17.v);
 }
 var x19 = undefined;
-return x19
-}
+};
 var x37 = function() {
-return undefined
-}
+};
 var x33 = function() {
 var x34 = console.log(", World!");
 var x35 = { v: x34, cs: [] };
 var x36 = x35;
 var x39 = x14(x36,x37);
-return x39
-}
+};
 var x25 = function() {
 var x26 = { v: null, cs: [] };
 var x27 = function() {
 var x29 = x2(x26,{});
-return x29
-}
+};
 setTimeout(x27, 2000);
 var x32 = x26;
 var x42 = x14(x32,x33);
-return x42
-}
+};
 var x21 = function() {
 var x22 = console.log("Hello");
 var x23 = { v: x22, cs: [] };
 var x24 = x23;
 var x45 = x14(x24,x25);
-return x45
-}
+};
 var x48 = x14(x13,x21);
-return x48
 }

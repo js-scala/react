@@ -12,12 +12,10 @@ x7.cs[x55](x8);
 }
 }
 var x9 = undefined;
-return x9
-}
+};
 var x2 = function(x3) {
 var x12 = x4(x1,x3);
-return x12
-}
+};
 $.get(x0, function (d, t, xhr) { x2(xhr.responseText); });
 var x16 = { v: null, cs: [] };
 var x15 = x1;
@@ -30,30 +28,25 @@ x20.cs.push(x21);
 x21(x20.v);
 }
 var x22 = undefined;
-return x22
-}
+};
 var x43 = function(x44) {
 var x46 = x4(x16,x44);
-return x46
-}
+};
 var x24 = function(x25) {
 var x26 = { v: null, cs: [] };
 var x27 = function(x28) {
 var x30 = x4(x26,x28);
-return x30
-}
+};
 $.get(x25, function (d, t, xhr) { x27(xhr.responseText); });
 var x34 = { v: null, cs: [] };
 var x33 = x26;
 var x35 = function(x36) {
 var x38 = x4(x34,x36);
-return x38
-}
+};
 var x41 = x17(x33,x35);
 var x42 = x34;
 var x49 = x17(x42,x43);
-return x49
-}
+};
 var x52 = x17(x15,x24);
 var x53 = x16;
 return x53

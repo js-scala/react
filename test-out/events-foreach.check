@@ -1,23 +1,18 @@
 function main() {
 var x0 = function(x1) {
-var x5 = window.addEventListener('mousewheel', function (x2) {
+window.addEventListener('mousewheel', function (x2) {
 var x3 = x1(x2);
 }, false);
-return x5
-}
+};
 var x7 = function(x8) {
 var x9 = function(x10) {
 var x11 = x10.wheelDeltaY;
 var x12 = x8(x11);
-return x12
-}
+};
 var x14 = x0(x9);
-return x14
-}
+};
 var x16 = function(x17) {
 var x18 = console.log(x17);
-return x18
-}
+};
 var x20 = x7(x16);
-return x20
 }

@@ -1,8 +1,8 @@
 package scala.js
 
-import virtualization.lms.common.{Functions, Base}
+import virtualization.lms.common.{IfThenElse, Functions, Base}
 
-trait React { this: Base with Functions =>
+trait React extends Base with Functions with IfThenElse {
 
   // A stream of events is a function that pushes events to a callback
   type Events[+A] = (A => Unit) => Unit
@@ -20,6 +20,10 @@ trait React { this: Base with Functions =>
     def merge[B >: A : Manifest](bs: Rep[Events[B]]): Rep[Events[B]] = Events[B] { f =>
       es((a: Rep[A]) => f(a))
       bs((b: Rep[B]) => f(b))
+    }
+
+    def filter(p: Rep[A] => Rep[Boolean]): Rep[Events[A]] = Events[A] { f =>
+      es((e: Rep[A]) => if (p(e)) f(e))
     }
   }
 
