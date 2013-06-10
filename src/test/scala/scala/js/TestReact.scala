@@ -2,12 +2,19 @@ package scala.js
 
 import virtualization.lms.common._
 import org.scalatest.Suite
+import scala.js.language.React
+import language.Debug
+import language.dom.Dom
+import exp.DebugExp
+import exp.dom.DomExp
+import gen.js.dom.GenDom
+import gen.js._
 
 class TestReact extends FileDiffSuite2("test-out/") with Suite {
 
   def testForeachAndMap() {
 
-    trait Prog extends React with JSDom with NumericOps with JSDebug {
+    trait Prog extends React with Dom with NumericOps with Debug {
 
       def domEvents[A : Manifest](event: EventName[A], e: Rep[EventTarget] = window): Rep[Events[A]] = Events[A] { f =>
         e.on(event) { e => f(e) }
@@ -37,8 +44,8 @@ class TestReact extends FileDiffSuite2("test-out/") with Suite {
     }
 
     testWithOutFile("events-foreach") { out =>
-      val prog = new Prog with EffectExp with React with JSDomExp with NumericOpsExp with JSFunctionsExp with IfThenElseExp with JSDebugExp
-      val codegen = new JSGenEffect with JSGenDom with JSGenNumericOps with JSGenFunctions with JSGenIfThenElse with JSGenDebug { val IR: prog.type = prog }
+      val prog = new Prog with EffectExp with React with DomExp with NumericOpsExp with FunctionsExp with IfThenElseExp with DebugExp
+      val codegen = new GenDom with GenNumericOps with GenFunctions with GenIfThenElse with GenDebug { val IR: prog.type = prog }
       codegen.emitSource0(prog.main _, "main", out)
     }
   }

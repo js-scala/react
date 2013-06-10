@@ -1,4 +1,4 @@
-package scala.js
+package scala.js.language
 
 import virtualization.lms.common.{IfThenElse, Functions, Base}
 

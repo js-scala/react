@@ -2,14 +2,14 @@ name := "react"
 
 organization := "js-scala"
 
-version := "0.1-SNAPSHOT"
+version := "0.2-SNAPSHOT"
 
 scalaOrganization := "org.scala-lang.virtualized"
 
-scalaVersion := "2.10.0"
+scalaVersion := "2.10.1"
 
 libraryDependencies ++= Seq(
-    "EPFL" %% "js-scala" % "0.3-SNAPSHOT",
+    "EPFL" %% "js-scala" % "0.4-SNAPSHOT",
     "org.scalatest" %% "scalatest" % "1.9.1" % "test"
 )
 

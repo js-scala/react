@@ -1,6 +1,8 @@
-package scala.js
+package scala.js.language.dom
 
-trait DomReact extends React with JSDom {
+import scala.js.language.React
+
+trait DomReact extends React with Dom {
 
   case object events {
     def of(event: EventDef, target: Rep[EventTarget] = window, capture: Rep[Boolean] = unit(false))(implicit m: Manifest[event.Type]): Rep[Events[event.Type]] =

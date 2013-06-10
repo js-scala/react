@@ -3,10 +3,13 @@ package scala.js
 import org.scalatest.Suite
 import virtualization.lms.common._
 import concurrent.{Promise, Future}
+import language.{Debug, FutureOps}
+import exp.{DebugExp, FutureOpsExp}
+import gen.js._
 
 class TestFutureOps extends FileDiffSuite2("test-out/") with Suite {
 
-  trait Sleep { this: Base with FutureOps with Functions =>
+  trait Sleep extends Base with FutureOps with Functions {
     def sleep(delay: Rep[Int]): Rep[Future[Unit]] = {
       val p = promise[Unit]
       window_setTimeout(fun(p.put), delay)
@@ -15,14 +18,14 @@ class TestFutureOps extends FileDiffSuite2("test-out/") with Suite {
     def window_setTimeout(f: Rep[Unit => Unit], d: Rep[Int]): Rep[Unit]
   }
 
-  trait SleepExp extends Sleep { this: EffectExp with FutureOps with Functions =>
+  trait SleepExp extends Sleep with EffectExp with FutureOpsExp with FunctionsExp {
     case class WindowSetTimeout(f: Exp[Unit => Unit], d: Exp[Int]) extends Def[Unit]
 
     def window_setTimeout(f: Exp[Unit => Unit], d: Exp[Int]) = reflectEffect(WindowSetTimeout(f, d))
   }
 
-  trait JSGenSleep extends JSNestedCodegen {
-    val IR: EffectExp with SleepExp
+  trait JSGenSleep extends GenEffect {
+    val IR: SleepExp
     import IR._
 
     override def emitNode(sym: Sym[Any], rhs: Def[Any]) = rhs match {
@@ -32,7 +35,7 @@ class TestFutureOps extends FileDiffSuite2("test-out/") with Suite {
     }
   }
 
-  trait Ajax { this: Base with FutureOps with Functions =>
+  trait Ajax extends Base with FutureOps with Functions {
     object Ajax {
       def get(url: Rep[String]): Rep[Future[String]] = {
         val p = promise[String]
@@ -47,15 +50,15 @@ class TestFutureOps extends FileDiffSuite2("test-out/") with Suite {
     }
   }
 
-  trait AjaxExp extends Ajax { this: EffectExp with FutureOps with Functions =>
+  trait AjaxExp extends Ajax with EffectExp with FutureOpsExp with FunctionsExp {
     case class JQueryGet(url: Exp[String], f: Exp[String => Unit]) extends Def[Unit]
     object jQuery extends jQueryOps {
       def get(url: Exp[String], f: Exp[String => Unit]) = reflectEffect(JQueryGet(url, f))
     }
   }
 
-  trait JSGenAjax extends JSNestedCodegen {
-    val IR: EffectExp with AjaxExp
+  trait JSGenAjax extends GenEffect {
+    val IR: AjaxExp
     import IR._
 
     override def emitNode(sym: Sym[Any], rhs: Def[Any]) = rhs match {
@@ -66,7 +69,7 @@ class TestFutureOps extends FileDiffSuite2("test-out/") with Suite {
   }
 
   def testForeach() {
-    trait Prog { this: Base with Sleep with FutureOps with JSDebug with LiftString with LiftNumeric =>
+    trait Prog extends Base with Sleep with FutureOps with Debug with LiftString with LiftNumeric {
 
       /*
        var main = function () {
@@ -89,8 +92,8 @@ class TestFutureOps extends FileDiffSuite2("test-out/") with Suite {
     }
 
     testWithOutFile("future-foreach") { out =>
-      val prog = new Prog with EffectExp with SleepExp with FutureOpsExp with IfThenElseExp with TupledFunctionsRecursiveExp with JSDebugExp with LiftString with LiftNumeric
-      val codegen = new JSGenEffect with JSGenSleep with JSGenFutureOps with JSGenIfThenElse with JSGenFunctions with GenericGenUnboxedTupleAccess with JSGenDebug { val IR: prog.type = prog }
+      val prog = new Prog with SleepExp with FutureOpsExp with IfThenElseExp with TupledFunctionsRecursiveExp with DebugExp
+      val codegen = new JSGenSleep with GenFutureOps with GenIfThenElse with GenFunctions with GenericGenUnboxedTupleAccess with GenDebug { val IR: prog.type = prog }
       codegen.emitSource0(prog.main _, "main", out)
     }
   }
@@ -104,8 +107,8 @@ class TestFutureOps extends FileDiffSuite2("test-out/") with Suite {
     }
 
     testWithOutFile("future-mapflatmap") { out =>
-      val prog = new Prog with EffectExp with AjaxExp with FutureOpsExp with IfThenElseExp with TupledFunctionsRecursiveExp
-      val codegen = new JSGenEffect with JSGenAjax with JSGenFutureOps with JSGenIfThenElse with JSGenFunctions with GenericGenUnboxedTupleAccess { val IR: prog.type = prog }
+      val prog = new Prog with AjaxExp with FutureOpsExp with IfThenElseExp with TupledFunctionsRecursiveExp
+      val codegen = new JSGenAjax with GenFutureOps with GenIfThenElse with GenFunctions with GenericGenUnboxedTupleAccess { val IR: prog.type = prog }
       codegen.emitSource(prog.main _, "main", out)
     }
   }
