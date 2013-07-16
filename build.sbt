@@ -6,7 +6,10 @@ version := "0.2-SNAPSHOT"
 
 scalaOrganization := "org.scala-lang.virtualized"
 
-scalaVersion := "2.10.1"
+scalaVersion := "2.10.2-RC1"
+
+// For macros
+resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies ++= Seq(
     "EPFL" %% "js-scala" % "0.4-SNAPSHOT",
