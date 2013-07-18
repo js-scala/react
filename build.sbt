@@ -8,7 +8,7 @@ scalaOrganization := "org.scala-lang.virtualized"
 
 scalaVersion := "2.10.2-RC1"
 
-// For macros
+// For quasiquotes (in macro paradise)
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 libraryDependencies ++= Seq(
